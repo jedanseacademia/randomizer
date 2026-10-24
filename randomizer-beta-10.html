@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RANDOMIZER</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --accent: #ff0198;
+    --text: #000000;
+    --bg: #ffffff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 20px;
+    min-height: 100vh;
+    transition: background 0.2s, color 0.2s;
+  }
+  .container { max-width: 900px; margin: 0 auto; }
+  .page-title {
+    text-align: center;
+    margin: 0 0 20px;
+    font-size: 2.6rem;
+    color: var(--accent);
+    font-weight: 700;
+    letter-spacing: 1px;
+    font-family: 'Exo 2', sans-serif;
+  }
+  .logo-center {
+    text-align: center;
+    margin: 12px 0 16px;
+  }
+  .logo-center img {
+    max-height: 150px;
+    max-width: 380px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+  }
+  h2 {
+    margin: 0 0 20px;
+    font-size: 1.15rem;
+    color: var(--accent);
+    word-break: break-word;
+    font-weight: 600;
+    text-align: center;
+    white-space: pre-line;
+    line-height: 1.35;
+  }
+  .card {
+    background: color-mix(in srgb, var(--bg) 92%, var(--text) 8%);
+    border: 1px solid color-mix(in srgb, var(--text) 15%, transparent);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 16px;
+    position: relative;
+  }
+  input[type="text"], textarea, button {
+    font-size: 1rem;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid color-mix(in srgb, var(--text) 25%, transparent);
+    background: var(--bg);
+    color: var(--text);
+    width: 100%;
+    font-family: inherit;
+  }
+  #eventTitle {
+    min-height: 64px;
+    resize: none;
+    line-height: 1.4;
+    margin-top: 6px;
+  }
+  textarea { min-height: 180px; resize: vertical; margin-top: 6px; }
+  button {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    width: auto;
+    padding: 12px 20px;
+  }
+  button:hover { filter: brightness(1.1); }
+  button.secondary {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid currentColor;
+  }
+  .row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+  }
+  .color-row { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+  .color-row label { display: flex; align-items: center; gap: 8px; font-size: 0.95rem; }
+  input[type="color"] { height: 38px; width: 60px; padding: 3px; border-radius: 8px; cursor: pointer; }
+  .status { color: var(--accent); font-weight: 600; min-height: 1.2em; margin-top: 8px; }
+  #resultsList {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px 20px;
+    list-style: none;
+    padding: 0;
+    margin: 12px 0;
+  }
+  #resultsList li {
+    margin: 0;
+    font-size: 1.02rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .pos-bubble {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 28px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: var(--accent);
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+  }
+  #introScreen, #mainScreen { display: none; }
+  #introScreen { display: block; }
+  #shareCanvas { display: none; }
+  .side-by-side {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+    margin: 20px 0 8px;
+    flex-wrap: wrap;
+  }
+  .logo-module, .color-module {
+    flex: 1 1 280px;
+    min-width: 240px;
+  }
+  .logo-uploader {
+    position: relative;
+    width: 100%;
+    height: 180px;
+    border: 2px dashed color-mix(in srgb, var(--text) 25%, transparent);
+    border-radius: 16px;
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    cursor: pointer;
+    margin-top: 8px;
+  }
+  .logo-uploader img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    display: none;
+  }
+  .upload-btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 999px;
+    padding: 10px 22px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.95rem;
+  }
+  .logo-uploader.has-image .upload-btn {
+    display: none;
+  }
+  .change-logo-btn {
+    margin-top: 10px;
+    background: transparent;
+    color: var(--text);
+    border: 1px solid currentColor;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: none;
+  }
+  .final-participants-label {
+    font-weight: 600;
+    margin: 16px 0 14px;
+    color: var(--text);
+    display: none;
+  }
+  .bubbles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 0 0 4px;
+    min-height: 40px;
+  }
+  .bubble {
+    padding: 8px 14px;
+    border-radius: 999px;
+    color: var(--accent);
+    font-weight: 500;
+    font-size: 0.95rem;
+    background: var(--bg);
+    border: 1.5px solid var(--accent);
+  }
+  .slider-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 8px 0 0;
+    max-width: 360px;
+  }
+  input[type="range"] {
+    flex: 1;
+    accent-color: var(--accent);
+    height: 6px;
+  }
+  #delayValue { font-weight: 600; min-width: 42px; font-size: 0.95rem; }
+  .lang-selector {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    display: flex;
+    gap: 10px;
+    font-size: 0.9rem;
+    align-items: center;
+  }
+  .lang-selector label { cursor: pointer; display: flex; align-items: center; gap: 4px; }
+  .dark-mode-btn {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid color-mix(in srgb, var(--text) 30%, transparent);
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-left: 8px;
+  }
+  .dark-mode-btn:hover { filter: brightness(1.1); }
+  #totalPositions {
+    margin-top: 16px;
+    font-weight: 600;
+    color: var(--accent);
+    font-size: 1.02rem;
+  }
+  .powered {
+    text-align: center;
+    margin-top: 24px;
+    font-size: 0.85rem;
+    opacity: 0.7;
+  }
+  .continue-wrap {
+    margin-top: 28px;
+  }
+  #delayLabel {
+    display: block;
+    margin-top: 20px;
+  }
+  #shareBtn, #newBtn { display: none; }
+  @media (max-width: 700px) {
+    #resultsList { grid-template-columns: repeat(2, 1fr); }
+    .lang-selector { position: static; margin-bottom: 12px; justify-content: flex-end; }
+    .side-by-side { flex-direction: column; }
+    .logo-center img { max-height: 120px; max-width: 280px; }
+  }
+  @media (max-width: 480px) {
+    #resultsList { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1 class="page-title" id="appTitle">RANDOMIZER</h1>
+  <div id="introScreen" class="card">
+    <div class="lang-selector">
+      <label><input type="radio" name="lang" value="en" checked> English</label>
+      <label><input type="radio" name="lang" value="es"> Español</label>
+      <button type="button" id="darkModeBtn" class="dark-mode-btn">Dark Mode</button>
+    </div>
+
+    <p id="eventNameLabel" style="margin: 0 0 4px;"><strong>Name your shuffle event:</strong></p>
+    <textarea id="eventTitle" placeholder="Raffle..." rows="2"></textarea>
+
+    <div class="side-by-side">
+      <div class="logo-module">
+        <label><strong id="logoLabel">Logo (optional, PNG, max 2 MB)</strong></label>
+        <div class="logo-uploader" id="logoUploader">
+          <img id="logoPreviewIntro" alt="Logo preview">
+          <button type="button" class="upload-btn" id="uploadBtn">Upload Logo</button>
+        </div>
+        <button type="button" class="change-logo-btn" id="changeLogoBtn">Change Logo</button>
+        <input type="file" id="logoInputIntro" accept="image/png" style="display:none;">
+      </div>
+      <div class="color-module">
+        <strong id="colorLabel">Color palette</strong> <span id="colorHint">(pick colors that match your logo)</span>
+        <div class="color-row">
+          <label><span id="accentLabel">Accent</span> <input type="color" id="accentColor" value="#ff0198"></label>
+          <label><span id="textLabel">Text</span> <input type="color" id="textColor" value="#000000"></label>
+          <label><span id="bgLabel">Background</span> <input type="color" id="bgColor" value="#ffffff"></label>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <strong id="delayLabel">Reveal delay between names</strong>
+      <div class="slider-row">
+        <input type="range" id="delaySlider" min="0" max="1" step="0.1" value="0.5">
+        <span id="delayValue">0.5 s</span>
+      </div>
+    </div>
+
+    <div class="continue-wrap">
+      <button id="startBtn">Continue</button>
+    </div>
+    <div class="status" id="introStatus"></div>
+  </div>
+
+  <div id="mainScreen">
+    <div id="logoCenter" class="logo-center" style="display:none;">
+      <img id="logoPreview" src="" alt="Logo">
+    </div>
+    <h2 id="eventHeading"></h2>
+
+    <div class="card">
+      <div id="namesSection" class="names-section">
+        <label for="namesInput">
+          <strong id="namesLabel">Enter all participants' names</strong> <span id="namesHint">(one per line or separated by commas)</span><br>
+          <small id="namesTip">Add (number) after a name to assign consecutive positions, e.g. Name (3)</small>
+        </label>
+        <textarea id="namesInput" placeholder="Name One&#10;Name Two&#10;Name Three (2)&#10;or: Name One, Name Two, Name Three (2)"></textarea>
+      </div>
+      <div id="finalParticipantsLabel" class="final-participants-label">Final participants:</div>
+      <div id="bubbles" class="bubbles"></div>
+      <div class="row">
+        <button id="actionBtn">Save</button>
+        <button id="clearBtn" class="secondary">Clear</button>
+        <button id="backBtn" class="secondary">Go back</button>
+      </div>
+      <div class="status" id="status"></div>
+    </div>
+
+    <div class="card" id="resultsBox" style="display:none;">
+      <h3 id="resultTitle" style="margin-top:0; color:var(--accent);">Result</h3>
+      <ul id="resultsList"></ul>
+      <div id="totalPositions" style="display:none;"></div>
+      <div class="row">
+        <button id="shareBtn">View as image</button>
+        <button id="newBtn" class="secondary">New Randomization</button>
+      </div>
+    </div>
+
+    <div class="powered" id="poweredBy">Powered by RANDOMIZER</div>
+  </div>
+</div>
+
+<canvas id="shareCanvas"></canvas>
+
+<script>
+const MAX_LOGO_SIZE = 2 * 1024 * 1024;
+
+const translations = {
+  en: {
+    appTitle: "RANDOMIZER",
+    eventNameLabel: "Name your shuffle event:",
+    eventPlaceholder: "Raffle...",
+    logoLabel: "Logo (optional, PNG, max 2 MB)",
+    colorLabel: "Color palette",
+    colorHint: "(pick colors that match your logo)",
+    accentLabel: "Accent",
+    textLabel: "Text",
+    bgLabel: "Background",
+    delayLabel: "Reveal delay between names",
+    continueBtn: "Continue",
+    namesLabel: "Enter all participants' names",
+    namesHint: "(one per line or separated by commas)",
+    namesTip: "Add (number) after a name to assign consecutive positions, e.g. Name (3)",
+    namesPlaceholder: "Name One\nName Two\nName Three (2)\nor: Name One, Name Two, Name Three (2)",
+    saveBtn: "Save",
+    mixBtn: "Shuffle & Assign Positions",
+    clearBtn: "Clear",
+    backBtn: "Go back",
+    resultTitle: "Result",
+    shareBtn: "View as image",
+    newBtn: "New Randomization",
+    needNames: "Please enter at least 2 names.",
+    needUnique: "You need at least 2 unique names.",
+    saved: "Names saved. You can now shuffle.",
+    shuffled: "Shuffled!",
+    summary: "The shuffle assigned {positions} positions to the {participants} participants.",
+    cleared: "Cleared.",
+    shuffleFirst: "Shuffle first to generate an image.",
+    eventRequired: "Please enter a name for the event.",
+    poweredBy: "Powered by RANDOMIZER",
+    fileTooBig: "File is larger than 2 MB.",
+    uploadLogo: "Upload Logo",
+    changeLogo: "Change Logo",
+    finalParticipants: "Final participants",
+    positionsToAssign: "Positions to assign",
+    darkMode: "Dark Mode",
+    lightMode: "Light Mode"
+  },
+  es: {
+    appTitle: "RANDOMIZER",
+    eventNameLabel: "Nombra tu evento de sorteo:",
+    eventPlaceholder: "Sorteo...",
+    logoLabel: "Logo (opcional, PNG, máx. 2 MB)",
+    colorLabel: "Paleta de colores",
+    colorHint: "(elige colores que combinen con tu logo)",
+    accentLabel: "Acento",
+    textLabel: "Texto",
+    bgLabel: "Fondo",
+    delayLabel: "Retraso entre nombres",
+    continueBtn: "Continuar",
+    namesLabel: "Introduce todos los nombres de los participantes",
+    namesHint: "(uno por línea o separados por comas)",
+    namesTip: "Añade (número) después de un nombre para posiciones consecutivas, ej. Nombre (3)",
+    namesPlaceholder: "Nombre Uno\nNombre Dos\nNombre Tres (2)\no: Nombre Uno, Nombre Dos, Nombre Tres (2)",
+    saveBtn: "Guardar",
+    mixBtn: "Barajar y Asignar Posiciones",
+    clearBtn: "Limpiar",
+    backBtn: "Volver",
+    resultTitle: "Resultado",
+    shareBtn: "Ver como imagen",
+    newBtn: "Nueva Aleatorización",
+    needNames: "Por favor introduce al menos 2 nombres.",
+    needUnique: "Necesitas al menos 2 nombres únicos.",
+    saved: "Nombres guardados. Ahora puedes barajar.",
+    shuffled: "¡Barajado!",
+    summary: "El sorteo asignó {positions} posiciones a los {participants} participantes.",
+    cleared: "Limpiado.",
+    shuffleFirst: "Baraja primero para generar una imagen.",
+    eventRequired: "Por favor introduce un nombre para el evento.",
+    poweredBy: "Powered by RANDOMIZER",
+    fileTooBig: "El archivo es mayor de 2 MB.",
+    uploadLogo: "Subir Logo",
+    changeLogo: "Cambiar Logo",
+    finalParticipants: "Participantes finales",
+    positionsToAssign: "Posiciones a asignar",
+    darkMode: "Modo Oscuro",
+    lightMode: "Modo Claro"
+  }
+};
+
+let currentLang = 'en';
+let t = translations.en;
+let namesSaved = false;
+let participantCount = 0;
+let shuffleTimestamp = null;
+let isDarkMode = false;
+let lightColors = { text: '#000000', bg: '#ffffff' };
+let darkColors = { text: '#f0f0f0', bg: '#1a1a1a' };
+let savedParticipantCount = 0;
+let savedTotalPositions = 0;
+
+function applyTranslations() {
+  t = translations[currentLang];
+  document.documentElement.lang = currentLang;
+
+  document.getElementById('appTitle').textContent = t.appTitle;
+  document.getElementById('eventNameLabel').innerHTML = '<strong>' + t.eventNameLabel + '</strong>';
+  document.getElementById('eventTitle').placeholder = t.eventPlaceholder;
+  document.getElementById('logoLabel').textContent = t.logoLabel;
+  document.getElementById('colorLabel').textContent = t.colorLabel;
+  document.getElementById('colorHint').textContent = t.colorHint;
+  document.getElementById('accentLabel').textContent = t.accentLabel;
+  document.getElementById('textLabel').textContent = t.textLabel;
+  document.getElementById('bgLabel').textContent = t.bgLabel;
+  document.getElementById('delayLabel').textContent = t.delayLabel;
+  document.getElementById('startBtn').textContent = t.continueBtn;
+
+  document.getElementById('namesLabel').textContent = t.namesLabel;
+  document.getElementById('namesHint').textContent = t.namesHint;
+  document.getElementById('namesTip').textContent = t.namesTip;
+  document.getElementById('namesInput').placeholder = t.namesPlaceholder;
+  document.getElementById('clearBtn').textContent = t.clearBtn;
+  document.getElementById('backBtn').textContent = t.backBtn;
+  document.getElementById('resultTitle').textContent = t.resultTitle;
+  document.getElementById('shareBtn').textContent = t.shareBtn;
+  document.getElementById('newBtn').textContent = t.newBtn;
+  document.getElementById('poweredBy').textContent = t.poweredBy;
+  document.getElementById('uploadBtn').textContent = t.uploadLogo;
+  document.getElementById('changeLogoBtn').textContent = t.changeLogo;
+
+  const darkModeBtn = document.getElementById('darkModeBtn');
+  darkModeBtn.textContent = isDarkMode ? t.lightMode : t.darkMode;
+
+  const actionBtn = document.getElementById('actionBtn');
+  actionBtn.textContent = namesSaved ? t.mixBtn : t.saveBtn;
+
+  if (finalParticipantsLabel.style.display === 'block' && savedParticipantCount > 0) {
+    finalParticipantsLabel.textContent = `${t.finalParticipants} (${savedParticipantCount}) | ${t.positionsToAssign} (${savedTotalPositions}):`;
+  }
+}
+
+document.querySelectorAll('input[name="lang"]').forEach(radio => {
+  radio.addEventListener('change', () => {
+    currentLang = radio.value;
+    applyTranslations();
+  });
+});
+
+const introScreen = document.getElementById('introScreen');
+const mainScreen = document.getElementById('mainScreen');
+const appTitle = document.getElementById('appTitle');
+const eventTitleInput = document.getElementById('eventTitle');
+const startBtn = document.getElementById('startBtn');
+const eventHeading = document.getElementById('eventHeading');
+const namesSection = document.getElementById('namesSection');
+const namesInput = document.getElementById('namesInput');
+const actionBtn = document.getElementById('actionBtn');
+const clearBtn = document.getElementById('clearBtn');
+const backBtn = document.getElementById('backBtn');
+const statusEl = document.getElementById('status');
+const resultsBox = document.getElementById('resultsBox');
+const resultsList = document.getElementById('resultsList');
+const totalPositionsEl = document.getElementById('totalPositions');
+const shareBtn = document.getElementById('shareBtn');
+const newBtn = document.getElementById('newBtn');
+const bubblesEl = document.getElementById('bubbles');
+const finalParticipantsLabel = document.getElementById('finalParticipantsLabel');
+const darkModeBtn = document.getElementById('darkModeBtn');
+
+const accentColor = document.getElementById('accentColor');
+const textColor = document.getElementById('textColor');
+const bgColor = document.getElementById('bgColor');
+const delaySlider = document.getElementById('delaySlider');
+const delayValue = document.getElementById('delayValue');
+
+const logoInputIntro = document.getElementById('logoInputIntro');
+const logoUploader = document.getElementById('logoUploader');
+const logoPreviewIntro = document.getElementById('logoPreviewIntro');
+const logoCenter = document.getElementById('logoCenter');
+const logoPreview = document.getElementById('logoPreview');
+const uploadBtn = document.getElementById('uploadBtn');
+const changeLogoBtn = document.getElementById('changeLogoBtn');
+
+let currentEventTitle = '';
+let currentResults = [];
+let logoDataUrl = null;
+let revealDelayMs = 500;
+
+eventTitleInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    const lines = eventTitleInput.value.split('\n');
+    if (lines.length >= 2) {
+      e.preventDefault();
+    }
+  }
+});
+
+function updateColors() {
+  document.documentElement.style.setProperty('--accent', accentColor.value);
+  document.documentElement.style.setProperty('--text', textColor.value);
+  document.documentElement.style.setProperty('--bg', bgColor.value);
+}
+accentColor.addEventListener('input', updateColors);
+textColor.addEventListener('input', updateColors);
+bgColor.addEventListener('input', updateColors);
+
+function toggleDarkMode() {
+  isDarkMode = !isDarkMode;
+  if (isDarkMode) {
+    if (isLightColor(textColor.value) && isLightColor(bgColor.value)) {
+      lightColors.text = textColor.value;
+      lightColors.bg = bgColor.value;
+    }
+    textColor.value = darkColors.text;
+    bgColor.value = darkColors.bg;
+  } else {
+    textColor.value = lightColors.text;
+    bgColor.value = lightColors.bg;
+  }
+  updateColors();
+  applyTranslations();
+}
+
+function isLightColor(hex) {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return (r * 299 + g * 587 + b * 114) / 1000 > 180;
+}
+
+darkModeBtn.addEventListener('click', toggleDarkMode);
+
+delaySlider.addEventListener('input', () => {
+  const val = parseFloat(delaySlider.value);
+  delayValue.textContent = val.toFixed(1) + ' s';
+  revealDelayMs = Math.round(val * 1000);
+});
+
+function triggerLogoSelect() {
+  if (logoInputIntro) logoInputIntro.click();
+}
+logoUploader.addEventListener('click', triggerLogoSelect);
+changeLogoBtn.addEventListener('click', triggerLogoSelect);
+
+if (logoInputIntro) {
+  logoInputIntro.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > MAX_LOGO_SIZE) {
+      document.getElementById('introStatus').textContent = t.fileTooBig;
+      logoInputIntro.value = '';
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      logoDataUrl = reader.result;
+      logoPreviewIntro.src = logoDataUrl;
+      logoPreviewIntro.style.display = 'block';
+      logoUploader.classList.add('has-image');
+      changeLogoBtn.style.display = 'inline-block';
+      logoPreview.src = logoDataUrl;
+      logoCenter.style.display = 'block';
+      document.getElementById('introStatus').textContent = '';
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+startBtn.addEventListener('click', () => {
+  const title = eventTitleInput.value.trim();
+  if (!title) {
+    document.getElementById('introStatus').textContent = t.eventRequired;
+    eventTitleInput.focus();
+    return;
+  }
+  currentEventTitle = title;
+  eventHeading.textContent = title;
+  appTitle.style.display = 'none';
+  introScreen.style.display = 'none';
+  mainScreen.style.display = 'block';
+  namesInput.focus();
+  document.getElementById('introStatus').textContent = '';
+});
+
+backBtn.addEventListener('click', () => {
+  mainScreen.style.display = 'none';
+  appTitle.style.display = 'block';
+  introScreen.style.display = 'block';
+});
+
+newBtn.addEventListener('click', () => {
+  eventTitleInput.value = '';
+  namesInput.value = '';
+  bubblesEl.innerHTML = '';
+  finalParticipantsLabel.style.display = 'none';
+  savedParticipantCount = 0;
+  savedTotalPositions = 0;
+  namesSaved = false;
+  namesSection.style.display = 'block';
+  actionBtn.textContent = t.saveBtn;
+  actionBtn.style.display = 'inline-block';
+  clearBtn.style.display = 'inline-block';
+  backBtn.style.display = 'inline-block';
+  currentResults = [];
+  resultsList.innerHTML = '';
+  totalPositionsEl.style.display = 'none';
+  totalPositionsEl.textContent = '';
+  resultsBox.style.display = 'none';
+  shareBtn.style.display = 'none';
+  newBtn.style.display = 'none';
+  statusEl.textContent = '';
+
+  logoDataUrl = null;
+  logoPreviewIntro.src = '';
+  logoPreviewIntro.style.display = 'none';
+  logoUploader.classList.remove('has-image');
+  changeLogoBtn.style.display = 'none';
+  logoPreview.src = '';
+  logoCenter.style.display = 'none';
+  logoInputIntro.value = '';
+
+  isDarkMode = false;
+  accentColor.value = '#ff0198';
+  textColor.value = '#000000';
+  bgColor.value = '#ffffff';
+  lightColors = { text: '#000000', bg: '#ffffff' };
+  updateColors();
+  applyTranslations();
+
+  delaySlider.value = '0.5';
+  delayValue.textContent = '0.5 s';
+  revealDelayMs = 500;
+
+  mainScreen.style.display = 'none';
+  appTitle.style.display = 'block';
+  introScreen.style.display = 'block';
+  eventTitleInput.focus();
+});
+
+function parseAndProcessNames(raw) {
+  const parts = raw.split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
+  const participants = [];
+  const seen = new Set();
+  for (const part of parts) {
+    const match = part.match(/^(.*?)(?:\s*\((\d+)\))?$/);
+    if (!match) continue;
+    const baseName = match[1].trim();
+    if (!baseName) continue;
+    const key = baseName.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    let qty = 1;
+    if (match[2]) {
+      qty = parseInt(match[2], 10);
+      if (!qty || qty < 1) qty = 1;
+    }
+    participants.push({ name: baseName, qty });
+  }
+  if (participants.length < 2) return { error: t.needUnique };
+  return { participants };
+}
+
+function fisherYatesShuffle(array) {
+  const arr = [...array];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const randomBuffer = new Uint32Array(1);
+    crypto.getRandomValues(randomBuffer);
+    const j = randomBuffer[0] % (i + 1);
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function generateBubbles(participants) {
+  bubblesEl.innerHTML = '';
+  let totalPositions = 0;
+  participants.forEach((p) => {
+    const bubble = document.createElement('span');
+    bubble.className = 'bubble';
+    bubble.textContent = p.name + (p.qty > 1 ? ` (${p.qty})` : '');
+    bubblesEl.appendChild(bubble);
+    totalPositions += p.qty;
+  });
+  savedParticipantCount = participants.length;
+  savedTotalPositions = totalPositions;
+  finalParticipantsLabel.textContent = `${t.finalParticipants} (${savedParticipantCount}) | ${t.positionsToAssign} (${savedTotalPositions}):`;
+  finalParticipantsLabel.style.display = 'block';
+}
+
+function doShuffle() {
+  const raw = namesInput.value.trim();
+  if (!raw) {
+    statusEl.textContent = t.needNames;
+    return;
+  }
+  const result = parseAndProcessNames(raw);
+  if (result.error) {
+    statusEl.textContent = result.error;
+    return;
+  }
+  const participants = result.participants;
+  participantCount = participants.length;
+  const shuffled = fisherYatesShuffle(participants);
+
+  const displayGroups = [];
+  currentResults = [];
+  let pos = 1;
+  shuffled.forEach(p => {
+    const lines = [];
+    for (let i = 1; i <= p.qty; i++) {
+      const item = { position: pos, name: p.name, sub: p.qty > 1 ? `(${i})` : '' };
+      lines.push(item);
+      currentResults.push(item);
+      pos++;
+    }
+    displayGroups.push(lines);
+  });
+
+  actionBtn.style.display = 'none';
+  clearBtn.style.display = 'none';
+
+  resultsList.innerHTML = '';
+  totalPositionsEl.style.display = 'none';
+  totalPositionsEl.textContent = '';
+  resultsBox.style.display = 'block';
+  shareBtn.style.display = 'none';
+  newBtn.style.display = 'none';
+  statusEl.textContent = t.shuffled;
+
+  backBtn.style.display = 'none';
+
+  shuffleTimestamp = new Date();
+  const total = pos - 1;
+  let groupIndex = 0;
+  function showNextGroup() {
+    if (groupIndex >= displayGroups.length) {
+      const dateStr = shuffleTimestamp.toLocaleString(currentLang === 'es' ? 'es-ES' : 'en-US', {
+        year: 'numeric', month: 'short', day: 'numeric',
+        hour: '2-digit', minute: '2-digit'
+      });
+      totalPositionsEl.textContent = t.summary
+        .replace('{positions}', total)
+        .replace('{participants}', participantCount) + '  ·  ' + dateStr;
+      totalPositionsEl.style.display = 'block';
+      shareBtn.style.display = 'inline-block';
+      newBtn.style.display = 'inline-block';
+      return;
+    }
+    displayGroups[groupIndex].forEach(r => {
+      const li = document.createElement('li');
+      const posBubble = document.createElement('span');
+      posBubble.className = 'pos-bubble';
+      posBubble.textContent = r.position;
+      const nameText = document.createElement('span');
+      nameText.textContent = r.name + (r.sub ? ' ' + r.sub : '');
+      li.appendChild(posBubble);
+      li.appendChild(nameText);
+      resultsList.appendChild(li);
+    });
+    groupIndex++;
+    setTimeout(showNextGroup, revealDelayMs);
+  }
+  showNextGroup();
+  resultsBox.scrollIntoView({ behavior: 'smooth' });
+}
+
+actionBtn.addEventListener('click', () => {
+  if (!namesSaved) {
+    const raw = namesInput.value.trim();
+    if (!raw) {
+      statusEl.textContent = t.needNames;
+      return;
+    }
+    const result = parseAndProcessNames(raw);
+    if (result.error) {
+      statusEl.textContent = result.error;
+      return;
+    }
+    generateBubbles(result.participants);
+    namesSaved = true;
+    namesSection.style.display = 'none';
+    actionBtn.textContent = t.mixBtn;
+    statusEl.textContent = t.saved;
+  } else {
+    doShuffle();
+  }
+});
+
+clearBtn.addEventListener('click', () => {
+  namesInput.value = '';
+  bubblesEl.innerHTML = '';
+  finalParticipantsLabel.style.display = 'none';
+  savedParticipantCount = 0;
+  savedTotalPositions = 0;
+  namesSaved = false;
+  namesSection.style.display = 'block';
+  actionBtn.textContent = t.saveBtn;
+  actionBtn.style.display = 'inline-block';
+  clearBtn.style.display = 'inline-block';
+  backBtn.style.display = 'inline-block';
+  currentResults = [];
+  resultsList.innerHTML = '';
+  totalPositionsEl.style.display = 'none';
+  totalPositionsEl.textContent = '';
+  resultsBox.style.display = 'none';
+  shareBtn.style.display = 'none';
+  newBtn.style.display = 'none';
+  statusEl.textContent = t.cleared;
+  namesInput.focus();
+});
+
+function generateShareImage() {
+  if (!currentResults.length) {
+    statusEl.textContent = t.shuffleFirst;
+    return;
+  }
+  const canvas = document.getElementById('shareCanvas');
+  const ctx = canvas.getContext('2d');
+  const width = 1100;
+  const lineHeight = 40;
+  const padding = 50;
+  const cols = 3;
+  const colWidth = (width - padding * 2) / cols;
+  const rows = Math.ceil(currentResults.length / cols);
+
+  const titleLines = currentEventTitle.split('\n').flatMap(line =>
+    wrapText(ctx, line, width - padding * 2, 'bold 26px Inter, system-ui, sans-serif')
+  );
+
+  const logoSpace = logoDataUrl ? 110 : 40;
+  const height = padding + titleLines.length * 36 + 50 + rows * lineHeight + 70 + logoSpace + padding;
+
+  canvas.width = width;
+  canvas.height = height;
+
+  const bg = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || '#ffffff';
+  const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#ff0198';
+  const textCol = getComputedStyle(document.documentElement).getPropertyValue('--text').trim() || '#000000';
+
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, width, height);
+  ctx.fillStyle = accent;
+  ctx.fillRect(0, 0, 10, height);
+
+  let y = padding;
+
+  function openImageInNewTab() {
+    const dataUrl = canvas.toDataURL('image/png');
+    const win = window.open();
+    if (win) {
+      win.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>RANDOMIZER Result</title>
+          <style>
+            body { margin: 0; background: #111; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+            img { max-width: 100%; height: auto; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+          </style>
+        </head>
+        <body>
+          <img src="${dataUrl}" alt="Randomizer Result">
+        </body>
+        </html>
+      `);
+      win.document.close();
+    } else {
+      const a = document.createElement('a');
+      a.href = dataUrl;
+      a.target = '_blank';
+      a.click();
+    }
+  }
+
+  function drawContent(startY) {
+    let yPos = startY;
+    ctx.fillStyle = accent;
+    ctx.font = 'bold 26px Inter, system-ui, sans-serif';
+    titleLines.forEach(line => {
+      ctx.fillText(line, padding, yPos);
+      yPos += 36;
+    });
+    yPos += 30;
+
+    ctx.fillStyle = textCol;
+    ctx.font = 'bold 22px Inter, system-ui, sans-serif';
+    ctx.fillText(t.resultTitle, padding, yPos);
+    yPos += 44;
+
+    const bubbleRadius = 14;
+    ctx.font = 'bold 15px Inter, system-ui, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    currentResults.forEach((r, index) => {
+      const col = index % cols;
+      const row = Math.floor(index / cols);
+      const x = padding + col * colWidth;
+      const y = yPos + row * lineHeight;
+
+      ctx.beginPath();
+      ctx.arc(x + bubbleRadius, y, bubbleRadius, 0, Math.PI * 2);
+      ctx.fillStyle = accent;
+      ctx.fill();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText(String(r.position), x + bubbleRadius, y);
+
+      ctx.fillStyle = textCol;
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      ctx.font = '18px Inter, system-ui, sans-serif';
+      const nameText = r.name + (r.sub ? ' ' + r.sub : '');
+      ctx.fillText(nameText, x + bubbleRadius * 2 + 12, y);
+
+      ctx.textAlign = 'center';
+      ctx.font = 'bold 15px Inter, system-ui, sans-serif';
+    });
+
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'alphabetic';
+
+    const totalY = yPos + rows * lineHeight + 30;
+    ctx.fillStyle = accent;
+    ctx.font = 'bold 18px Inter, system-ui, sans-serif';
+    const dateStr = shuffleTimestamp
+      ? shuffleTimestamp.toLocaleString(currentLang === 'es' ? 'es-ES' : 'en-US', {
+          year: 'numeric', month: 'short', day: 'numeric',
+          hour: '2-digit', minute: '2-digit'
+        })
+      : '';
+    const summary = t.summary
+      .replace('{positions}', currentResults.length)
+      .replace('{participants}', participantCount) + (dateStr ? '  ·  ' + dateStr : '');
+    ctx.fillText(summary, padding, totalY);
+  }
+
+  function drawLogoStamp() {
+    if (!logoDataUrl) return;
+    const img = new Image();
+    img.onload = () => {
+      const maxH = 100, maxW = 260;
+      const scale = Math.min(maxH / img.height, maxW / img.width);
+      const w = img.width * scale, h = img.height * scale;
+      ctx.drawImage(img, width - padding - w, height - padding - h, w, h);
+      openImageInNewTab();
+    };
+    img.onerror = openImageInNewTab;
+    img.src = logoDataUrl;
+  }
+
+  drawContent(y);
+  if (logoDataUrl) drawLogoStamp();
+  else openImageInNewTab();
+}
+
+function wrapText(ctx, text, maxWidth, font) {
+  ctx.font = font;
+  const words = text.split(' ');
+  const lines = [];
+  let current = '';
+  for (const word of words) {
+    const test = current ? current + ' ' + word : word;
+    if (ctx.measureText(test).width > maxWidth && current) {
+      lines.push(current);
+      current = word;
+    } else current = test;
+  }
+  if (current) lines.push(current);
+  return lines.length ? lines : [text];
+}
+
+shareBtn.addEventListener('click', generateShareImage);
+
+updateColors();
+applyTranslations();
+</script>
+</body>
+</html>
